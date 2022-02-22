@@ -17,7 +17,7 @@ terraform {
 resource "aws_ecr_repository" "modules" {
   for_each = var.project_modules
 
-  name = each.key
+  name = "${var.project}_${each.key}"
 
   image_scanning_configuration {
     scan_on_push = false
