@@ -12,5 +12,5 @@ variable "project" {
 
 variable "project_modules" {
   type    = set(string)
-  default = ["frontend", "nginx", "worker", "server"]
+  default = ["client", "nginx", "worker", "server"]
 }

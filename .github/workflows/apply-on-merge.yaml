@@ -51,7 +51,14 @@ jobs:
     name: Build Artifacts
     runs-on: ubuntu-latest
     needs: [prebuild, test]
-  
+    strategy:
+      matrix:
+        module:
+          - client
+          - nginx
+          - server
+          - worker
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -67,50 +74,62 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build and push the front-end image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: docker_multi_container_deployment_frontend
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        echo "Build the front-end production docker image"
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./client
-        echo "Pushing the image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-    
-    - name: Build and push the nginx image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: docker_multi_container_deployment_nginx
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        echo "Build the nginx production docker image"
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./nginx
-        echo "Pushing the image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-    
-    - name: Build and push the server image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: docker_multi_container_deployment_server
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        echo "Build the server production docker image"
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./server
-        echo "Pushing the image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+  - name: Build the module and push its image to Amazon ECR
+    env:
+      ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      ECR_REPOSITORY: docker_multi_container_deployment_${{ matrix.module }}
+      IMAGE_TAG: ${{ github.sha }}
+    run: |
+      echo "Build the module production docker image"
+      docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./${{ matrix.module }}
+      echo "Pushing the image to ECR..."
+      docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-    - name: Build and push the worker image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: docker_multi_container_deployment_worker
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        echo "Build the worker production docker image"
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./worker
-        echo "Pushing the image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+    # - name: Build and push the front-end image to Amazon ECR
+    #   env:
+    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     ECR_REPOSITORY: docker_multi_container_deployment_frontend
+    #     IMAGE_TAG: ${{ github.sha }}
+    #   run: |
+    #     echo "Build the front-end production docker image"
+    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./client
+    #     echo "Pushing the image to ECR..."
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+    
+    # - name: Build and push the nginx image to Amazon ECR
+    #   env:
+    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     ECR_REPOSITORY: docker_multi_container_deployment_nginx
+    #     IMAGE_TAG: ${{ github.sha }}
+    #   run: |
+    #     echo "Build the nginx production docker image"
+    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./nginx
+    #     echo "Pushing the image to ECR..."
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+    
+    # - name: Build and push the server image to Amazon ECR
+    #   env:
+    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     ECR_REPOSITORY: docker_multi_container_deployment_server
+    #     IMAGE_TAG: ${{ github.sha }}
+    #   run: |
+    #     echo "Build the server production docker image"
+    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./server
+    #     echo "Pushing the image to ECR..."
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+    # - name: Build and push the worker image to Amazon ECR
+    #   env:
+    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     ECR_REPOSITORY: docker_multi_container_deployment_worker
+    #     IMAGE_TAG: ${{ github.sha }}
+    #   run: |
+    #     echo "Build the worker production docker image"
+    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./worker
+    #     echo "Pushing the image to ECR..."
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
