@@ -1,10 +1,12 @@
+name: Deploy Fib Calculator
+
 on:
   push:
-    branches: [ master ]
+    branches:
+      - main
   # pull_request:
-  #   branches: [ master ]
-
-name: Deploy Fib Calculator
+  #   branches:
+  #     - main
 
 jobs:
   deploy:
