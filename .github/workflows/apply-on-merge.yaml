@@ -74,17 +74,17 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-  - name: Build the module and push its image to Amazon ECR
-    env:
-      ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      ECR_REPOSITORY: docker_multi_container_deployment_${{ matrix.module }}
-      IMAGE_TAG: ${{ github.sha }}
-    run: |
-      echo "Build the module production docker image"
-      docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./${{ matrix.module }}
-      echo "Pushing the image to ECR..."
-      docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+    - name: Build the module and push its image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: docker_multi_container_deployment_${{ matrix.module }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        echo "Build the module production docker image"
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./${{ matrix.module }}
+        echo "Pushing the image to ECR..."
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
     # - name: Build and push the front-end image to Amazon ECR
     #   env:
