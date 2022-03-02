@@ -2,7 +2,7 @@ services:
   client:
     hostname: client
     mem_limit: 128m
-    image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_frontend
+    image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_client
   server:
     hostname: server
     mem_limit: 128m
@@ -17,6 +17,8 @@ services:
       - PGPASSWORD=$PGPASSWORD
   worker:
     hostname: worker
+    mem_limit: 128m
+    image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_worker
     environment:
       - REDIS_HOST=$REDIS_HOST
       - REDIS_PORT=$REDIS_PORT
