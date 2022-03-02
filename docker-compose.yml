@@ -10,11 +10,11 @@ services:
     environment:
       - REDIS_HOST=$REDIS_HOST
       - REDIS_PORT=$REDIS_PORT
-      - PGUSER=$PGUSER
       - PGHOST=$PGHOST
-      - PGDATABASE=$PGDATABASE
-      - PGPASSWORD=$PGPASSWORD
       - PGPORT=$PGPORT
+      - PGDATABASE=$PGDATABASE
+      - PGUSER=$PGUSER
+      - PGPASSWORD=$PGPASSWORD
   worker:
     hostname: worker
     environment:
