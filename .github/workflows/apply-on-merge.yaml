@@ -48,7 +48,7 @@ jobs:
         terraform -chdir=./ci/prebuild apply --auto-approve
 
   build:
-    name: Build Artifacts
+    name: Build Artifact
     runs-on: ubuntu-latest
     needs: [prebuild, test]
     strategy:
@@ -111,7 +111,11 @@ jobs:
         terraform -chdir=./ci/deploy/staging apply --auto-approve
     
     - name: Generate deployment package
-      run: zip -r deploy.zip ./docker-compose.yml
+      env:
+        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      run: |
+        sed 's/AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' docker-compose-prod.yml > docker-compose.yml
+        zip -r deploy.zip ./docker-compose.yml
 
     - name: Deploy latest Docker images to EB
       uses: einaregilsson/beanstalk-deploy@v20

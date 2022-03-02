@@ -2,11 +2,11 @@ services:
   client:
     hostname: client
     mem_limit: 128m
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_frontend
+    image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_frontend
   server:
     hostname: server
     mem_limit: 128m
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_server
+    image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_server
     environment:
       - REDIS_HOST=$REDIS_HOST
       - REDIS_PORT=$REDIS_PORT
@@ -23,7 +23,7 @@ services:
   nginx:
     hostname: nginx
     mem_limit: 128m
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_nginx
+    image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_nginx
     restart: always
     ports:
       - "80:80"
