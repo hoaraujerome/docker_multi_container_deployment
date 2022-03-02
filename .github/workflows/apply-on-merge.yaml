@@ -8,6 +8,9 @@ on:
   #   branches:
   #     - main
 
+env:
+  AWS_REGION: ca-central-1
+
 jobs:
   test:
     name: Tests
@@ -40,7 +43,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: ca-central-1
+        aws-region: $AWS_REGION
 
     - name: Create AWS ECR repos
       run: |
@@ -68,7 +71,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: ca-central-1
+        aws-region: $AWS_REGION
         
     - name: Login to Amazon ECR
       id: login-ecr
@@ -103,7 +106,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: ca-central-1
+        aws-region: $AWS_REGION
 
     - name: Build AWS resources for staging
       run: |
@@ -124,6 +127,6 @@ jobs:
         aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
         application_name: docker_multi_container_deployment
         environment_name: Dockermulticontainerdeployment-staging
-        region: ca-central-1
+        region: $AWS_REGION
         version_label: ${{ github.sha }}
         deployment_package: deploy.zip
