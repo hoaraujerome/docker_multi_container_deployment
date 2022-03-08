@@ -10,7 +10,7 @@ resource "aws_elastic_beanstalk_application" "app" {
 resource "aws_elastic_beanstalk_environment" "staging" {
   name                = "Dockermulticontainerdeployment-staging"
   application         = aws_elastic_beanstalk_application.app.name
-  solution_stack_name = "64bit Amazon Linux 2 v3.4.11 running Docker"
+  solution_stack_name = "64bit Amazon Linux 2 v3.4.12 running Docker"
 
   setting {
     namespace = "aws:ec2:vpc"
@@ -39,7 +39,7 @@ resource "aws_elastic_beanstalk_environment" "staging" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
-    value     = "aws-elasticbeanstalk-ec2-role"
+    value     = aws_iam_instance_profile.elasticbeanstalk_ec2.name
   }
 
   setting {
