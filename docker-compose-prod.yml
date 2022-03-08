@@ -1,9 +1,5 @@
 services:
-  client:
-    hostname: client
-    mem_limit: 128m
-    image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_client:IMAGE_TAG
-  server:
+  api:
     hostname: server
     mem_limit: 128m
     image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_server:IMAGE_TAG
@@ -15,6 +11,10 @@ services:
       - PGDATABASE=$PGDATABASE
       - PGUSER=$PGUSER
       - PGPASSWORD=$PGPASSWORD
+  client:
+    hostname: client
+    mem_limit: 128m
+    image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_client:IMAGE_TAG
   worker:
     hostname: worker
     mem_limit: 128m
