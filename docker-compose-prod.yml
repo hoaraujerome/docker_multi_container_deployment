@@ -1,6 +1,6 @@
 services:
   api:
-    hostname: server
+    hostname: api
     mem_limit: 128m
     image: AWS_ACCOUNT_ID.dkr.ecr.ca-central-1.amazonaws.com/docker_multi_container_deployment_server:IMAGE_TAG
     environment:
