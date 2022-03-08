@@ -18,6 +18,7 @@ resource "aws_db_instance" "postgres" {
   username               = "postgres"
   password               = "postgres_password"
   port                   = var.postgres_port
+  name                   = var.postgres_database
   db_subnet_group_name   = aws_db_subnet_group.postgres.name
   vpc_security_group_ids = [var.app_security_group_id]
   skip_final_snapshot    = true

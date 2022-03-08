@@ -27,3 +27,9 @@ variable "app_security_group_id" {
   type        = string
   description = "Application Security Group ID"
 }
+
+variable "postgres_database" {
+  type        = string
+  description = "Postgres database"
+  default     = "fibvalues"
+}

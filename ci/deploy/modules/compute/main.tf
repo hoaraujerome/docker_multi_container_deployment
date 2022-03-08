@@ -21,8 +21,7 @@ resource "aws_elastic_beanstalk_environment" "staging" {
   setting {
     namespace = "aws:ec2:vpc"
     name      = "Subnets"
-    # value     = join(",", var.vpc_private_subnet_ids)
-    value = join(",", var.vpc_public_subnet_ids)
+    value     = join(",", var.vpc_private_subnet_ids)
   }
 
   setting {
@@ -41,12 +40,6 @@ resource "aws_elastic_beanstalk_environment" "staging" {
     namespace = "aws:ec2:vpc"
     name      = "ELBScheme"
     value     = "public"
-  }
-
-  setting {
-    namespace = "aws:elasticbeanstalk:environment:process:default"
-    name      = "HealthCheckPath"
-    value     = "/health"
   }
 
   setting {

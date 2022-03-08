@@ -20,12 +20,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # - name: Run front-end tests
-    #   run: |
-    #     echo "Build a docker image for tests"
-    #     docker build -t frontend-test -f ./client/Dockerfile.dev ./client
-    #     echo "Run tests against that image"
-    #     docker run -e CI=true frontend-test npm test
+    - name: Run front-end tests
+      run: |
+        echo "Build a docker image for tests"
+        docker build -t frontend-test -f ./client/Dockerfile.dev ./client
+        echo "Run tests against that image"
+        docker run -e CI=true frontend-test npm test
 
   prebuild:
     name: Prebuild

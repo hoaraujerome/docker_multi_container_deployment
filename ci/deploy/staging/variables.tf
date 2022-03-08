@@ -49,3 +49,9 @@ variable "postgres_port" {
   description = "Postgres port"
   default     = 5432
 }
+
+variable "postgres_database" {
+  type        = string
+  description = "Postgres database"
+  default     = "fibvalues"
+}

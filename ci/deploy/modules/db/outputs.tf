@@ -7,7 +7,7 @@ output "postgres_port" {
 }
 
 output "postgres_database" {
-  value = aws_db_instance.postgres.identifier
+  value = aws_db_instance.postgres.name
 }
 
 output "postgres_username" {
