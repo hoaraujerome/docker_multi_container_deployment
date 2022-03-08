@@ -43,6 +43,12 @@ resource "aws_elastic_beanstalk_environment" "staging" {
   }
 
   setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
+    name      = "HealthCheckPath"
+    value     = "/health"
+  }
+
+  setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
     value     = aws_iam_instance_profile.elasticbeanstalk_ec2.name

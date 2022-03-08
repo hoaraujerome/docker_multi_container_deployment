@@ -9,6 +9,10 @@ upstream api {
 server {
   listen 80;
 
+  location /health {
+    return 200;
+  }
+
   location / {
     proxy_pass http://client;
   }
