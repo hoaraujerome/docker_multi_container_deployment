@@ -31,6 +31,12 @@ resource "aws_elastic_beanstalk_environment" "staging" {
   }
 
   setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "LoadBalancerType"
+    value     = "application"
+  }
+
+  setting {
     namespace = "aws:ec2:vpc"
     name      = "ELBScheme"
     value     = "public"
