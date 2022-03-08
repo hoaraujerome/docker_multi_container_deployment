@@ -116,8 +116,12 @@ jobs:
     - name: Generate deployment package
       env:
         AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        IMAGE_TAG: ${{ github.sha }}
       run: |
-        sed 's/AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' docker-compose-prod.yml > docker-compose.yml
+        cp docker-compose-prod.yml docker-compose-prod.editing.yml
+        sed -i 's/AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' docker-compose-prod.editing.yml
+        sed -i 's/IMAGE_TAG/'"$IMAGE_TAG"'/g' docker-compose.editing.yml
+        mv docker-compose-prod.editing.yml docker-compose.yml
         zip -r deploy.zip ./docker-compose.yml
 
     - name: Deploy latest Docker images to EB
