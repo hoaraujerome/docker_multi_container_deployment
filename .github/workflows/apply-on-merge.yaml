@@ -119,6 +119,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         cp docker-compose-prod.yml docker-compose-prod.editing.yml
+        ls -al
         sed -i 's/AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' docker-compose-prod.editing.yml
         sed -i 's/IMAGE_TAG/'"$IMAGE_TAG"'/g' docker-compose.editing.yml
         mv docker-compose-prod.editing.yml docker-compose.yml
