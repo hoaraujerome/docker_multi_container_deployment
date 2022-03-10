@@ -11,8 +11,8 @@ if [ $# -gt 0 ]; then
     elif [ "$1" == "deploy" ]; then
       terraform fmt
       terraform validate
-      terraform apply -var 'project_modules=["client", "nginx", "worker", "server"]'
+      terraform apply -var 'project=docker_multi_container_deployment' -var 'project_modules=["client", "nginx", "worker", "server"]'
     else
-      terraform $1 -var 'project_modules=["client", "nginx", "worker", "server"]'
+      terraform $1 -var 'project=docker_multi_container_deployment' -var 'project_modules=["client", "nginx", "worker", "server"]'
     fi
 fi

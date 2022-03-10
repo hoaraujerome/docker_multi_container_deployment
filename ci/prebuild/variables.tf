@@ -6,8 +6,7 @@ variable "iac_tool" {
 
 variable "project" {
   type        = string
-  description = "The name of the project"
-  default     = "docker_multi_container_deployment"
+  description = "Project's name"
 }
 
 variable "project_modules" {
