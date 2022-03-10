@@ -51,13 +51,13 @@ jobs:
 
     - name: Create AWS ECR repos
       env:
-        module-client: ${{ env.PROJECT_MODULE_CLIENT }}
-        module-nginx: ${{ env.PROJECT_MODULE_NGINX }}
-        module-worker: ${{ env.PROJECT_MODULE_WORKER }}
-        module-server: ${{ env.PROJECT_MODULE_SERVER }}
+        MODULE_CLIENT: ${{ env.PROJECT_MODULE_CLIENT }}
+        MODULE-NGINX: ${{ env.PROJECT_MODULE_NGINX }}
+        MODULE-WORKER: ${{ env.PROJECT_MODULE_WORKER }}
+        MODULE-SERVER: ${{ env.PROJECT_MODULE_SERVER }}
       run: |
         terraform -chdir=./ci/prebuild init
-        terraform -chdir=./ci/prebuild apply --auto-approve -var 'project_modules=["'"$module-client"'"]'
+        terraform -chdir=./ci/prebuild apply --auto-approve -var 'project_modules=["'"$MODULE_CLIENT"'"]'
 
   # build:
   #   name: Build Artifact
