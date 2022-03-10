@@ -11,6 +11,7 @@ on:
 env:
   AWS_REGION: ca-central-1
   PROJECT_NAME: docker_multi_container_deployment
+  BEANSTALK_ENVIRONMENT: Dockermulticontainerdeployment-staging
 
 jobs:
   prebuild:
@@ -108,18 +109,23 @@ jobs:
       env:
         PROJECT_NAME: ${{ env.PROJECT_NAME }}
         POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        BEANSTALK_ENVIRONMENT: ${{ env.BEANSTALK_ENVIRONMENT }}
       run: |
         terraform -chdir=./ci/deploy/staging init -backend-config=../backend-staging.tf
-        terraform -chdir=./ci/deploy/staging apply --auto-approve -var 'project='"$PROJECT_NAME"'' -var 'postgres_password='"$POSTGRES_PASSWORD"''
+        terraform -chdir=./ci/deploy/staging apply --auto-approve -var 'project='"$PROJECT_NAME"'' -var 'postgres_password='"$POSTGRES_PASSWORD"'' -var 'beanstalk_environment='"$BEANSTALK_ENVIRONMENT"''
     
     - name: Generate deployment package
       env:
         AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         IMAGE_TAG: ${{ github.sha }}
+        AWS_REGION: ${{ env.AWS_REGION }}
+        PROJECT_NAME: ${{ env.PROJECT_NAME }}
       run: |
         cp docker-compose-prod.yml docker-compose-prod.editing.yml
         sed -i 's/AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' docker-compose-prod.editing.yml
         sed -i 's/IMAGE_TAG/'"$IMAGE_TAG"'/g' docker-compose-prod.editing.yml
+        sed -i 's/AWS_REGION/'"$AWS_REGION"'/g' docker-compose-prod.editing.yml
+        sed -i 's/PROJECT_NAME/'"$PROJECT_NAME"'/g' docker-compose-prod.editing.yml
         mv docker-compose-prod.editing.yml docker-compose.yml
         zip -r deploy.zip ./docker-compose.yml
 
@@ -129,7 +135,7 @@ jobs:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
         aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
         application_name: ${{ env.PROJECT_NAME }}
-        environment_name: Dockermulticontainerdeployment-staging
+        environment_name: ${{ env.BEANSTALK_ENVIRONMENT }}
         region: ${{ env.AWS_REGION }}
         version_label: ${{ github.sha }}
         deployment_package: deploy.zip

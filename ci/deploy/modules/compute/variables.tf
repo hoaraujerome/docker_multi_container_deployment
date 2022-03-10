@@ -67,3 +67,8 @@ variable "postgres_password" {
   type        = string
   description = "Postgres password"
 }
+
+variable "beanstalk_environment" {
+  type        = string
+  description = "Beanstalk environment name"
+}

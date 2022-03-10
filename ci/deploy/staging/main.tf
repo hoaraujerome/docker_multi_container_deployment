@@ -63,4 +63,5 @@ module "compute" {
   postgres_database      = module.db.postgres_database
   postgres_username      = module.db.postgres_username
   postgres_password      = var.postgres_password
+  beanstalk_environment  = var.beanstalk_environment
 }

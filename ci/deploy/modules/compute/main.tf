@@ -8,7 +8,7 @@ resource "aws_elastic_beanstalk_application" "app" {
 }
 
 resource "aws_elastic_beanstalk_environment" "staging" {
-  name                = "Dockermulticontainerdeployment-staging"
+  name                = var.beanstalk_environment
   application         = aws_elastic_beanstalk_application.app.name
   solution_stack_name = "64bit Amazon Linux 2 v3.4.12 running Docker"
 

@@ -13,9 +13,9 @@ if [ $# -gt 0 ]; then
     elif [ "$2" == "deploy" ]; then
       terraform fmt --recursive
       terraform -chdir=./$TF_ENV validate
-      terraform -chdir=./$TF_ENV apply -var 'project=docker_multi_container_deployment'
+      terraform -chdir=./$TF_ENV apply -var 'project=docker_multi_container_deployment' -var 'beanstalk_environment=Dockermulticontainerdeployment-staging'
     else
-      terraform -chdir=./$TF_ENV $2 -var 'project=docker_multi_container_deployment'
+      terraform -chdir=./$TF_ENV $2 -var 'project=docker_multi_container_deployment' -var 'beanstalk_environment=Dockermulticontainerdeployment-staging'
     fi
 fi
  
