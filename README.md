@@ -11,3 +11,18 @@ Stack:
 * Staging Environment: AWS Elastic Beanstalk + RDS + ElastiCache Redis
 
 Overview:
+
+![Overview](/misc/docker_multi_container_deployment-Deployment.jpg)
+
+Deployment Local VS Cloud:
+
+![Deployment](/misc/docker_multi_container_deployment-LocalVSCloud.jpg)
+
+Pipeline:
+
+![Pipeline](/misc/pipeline.jpg)
+
+### Prerequisites
+* S3 bucket **with versioning** to store the Terraform states (see "bucket" in the [prebuild configuration](/ci/prebuild/main.tf) and in the deploy [staging configuration](/ci/deploy/backend-staging.tf)).
+* IAM user named **devops_githubactions** (see "profile" in the [prebuild configuration](/ci/prebuild/main.tf) and in the deploy [staging configuration](/ci/deploy/staging/main.tf)). Programmatic access only with permissions: RDS, IAM, ElastiCache, EC2 Container Registry, S3, VPC, and Elastic Beanstalk.
+* Create 4 repository secrets in your GitHub repository: AWS_ACCESS_KEY + AWS_SECRET_KEY of the IAM user newly created, AWS_ACCOUNT_ID, and POSTGRES_PASSWORD with the desired password for the database.
