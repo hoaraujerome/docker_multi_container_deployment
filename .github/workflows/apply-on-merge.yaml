@@ -10,31 +10,19 @@ on:
 
 env:
   AWS_REGION: ca-central-1
-  PROJECT_MODULE_CLIENT: client
-  PROJECT_MODULE_NGINX: nginx
-  PROJECT_MODULE_WORKER: worker
-  PROJECT_MODULE_SERVER: server
 
 jobs:
-  test:
-    name: Tests
+  build:
+    name: Build project module
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    strategy:
+      matrix:
+        module:
+          - client
+          - nginx
+          - server
+          - worker
 
-    # - name: Run front-end tests
-    #   run: |
-    #     echo "Build a docker image for tests"
-    #     docker build -t frontend-test -f ./client/Dockerfile.dev ./client
-    #     echo "Run tests against that image"
-    #     docker run -e CI=true frontend-test npm test
-
-  prebuild:
-    name: Prebuild
-    runs-on: ubuntu-latest
-  
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -49,15 +37,56 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Create AWS ECR repos
-      env:
-        MODULE_CLIENT: ${{ env.PROJECT_MODULE_CLIENT }}
-        MODULE-NGINX: ${{ env.PROJECT_MODULE_NGINX }}
-        MODULE-WORKER: ${{ env.PROJECT_MODULE_WORKER }}
-        MODULE-SERVER: ${{ env.PROJECT_MODULE_SERVER }}
+    - name: Run tests
+      if: ${{ matrix.module == 'client' }}
       run: |
-        terraform -chdir=./ci/prebuild init
-        terraform -chdir=./ci/prebuild apply --auto-approve -var 'project_modules=["'"$MODULE_CLIENT"'"]'
+        echo "Build a docker image for tests"
+        docker build -t client-test -f ./client/Dockerfile.dev ./client
+        echo "Run tests against that image"
+        docker run -e CI=true client-test npm test
+
+  # test:
+  #   name: Tests
+  #   runs-on: ubuntu-latest
+    
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
+
+    # - name: Run front-end tests
+    #   run: |
+    #     echo "Build a docker image for tests"
+    #     docker build -t frontend-test -f ./client/Dockerfile.dev ./client
+    #     echo "Run tests against that image"
+    #     docker run -e CI=true frontend-test npm test
+
+  # prebuild:
+  #   name: Prebuild
+  #   runs-on: ubuntu-latest
+  
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
+
+  #   - name: Setup Terraform
+  #     uses: hashicorp/setup-terraform@v1
+
+  #   - name: Configure AWS credentials
+  #     uses: aws-actions/configure-aws-credentials@v1
+  #     with:
+  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+  #       aws-region: ${{ env.AWS_REGION }}
+
+  #   - name: Create AWS ECR repos
+  #     env:
+  #       MODULE_CLIENT: ${{ env.PROJECT_MODULE_CLIENT }}
+  #       MODULE-NGINX: ${{ env.PROJECT_MODULE_NGINX }}
+  #       MODULE-WORKER: ${{ env.PROJECT_MODULE_WORKER }}
+  #       MODULE-SERVER: ${{ env.PROJECT_MODULE_SERVER }}
+  #     run: |
+  #       terraform -chdir=./ci/prebuild init
+  #       terraform -chdir=./ci/prebuild apply --auto-approve -var 'project_modules=["'"$MODULE_CLIENT"'", "'"$MODULE_NGINX"'", "'"$MODULE_WORKER"'", "'"$MODULE_SERVER"'"]'
 
   # build:
   #   name: Build Artifact
