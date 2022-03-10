@@ -33,8 +33,6 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Create AWS ECR repos
-      env:
-        PROJECT_NAME: ${{ env.PROJECT_NAME }}
       run: |
         terraform -chdir=./ci/prebuild init
         terraform -chdir=./ci/prebuild apply --auto-approve -var 'project='"${{ env.PROJECT_NAME }}"'' -var 'project_modules=["client", "nginx", "server", "worker"]'
@@ -106,26 +104,17 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Build AWS resources for staging
-      env:
-        PROJECT_NAME: ${{ env.PROJECT_NAME }}
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        BEANSTALK_ENVIRONMENT: ${{ env.BEANSTALK_ENVIRONMENT }}
       run: |
         terraform -chdir=./ci/deploy/staging init -backend-config=../backend-staging.tf
-        terraform -chdir=./ci/deploy/staging apply --auto-approve -var 'project='"$PROJECT_NAME"'' -var 'postgres_password='"$POSTGRES_PASSWORD"'' -var 'beanstalk_environment='"$BEANSTALK_ENVIRONMENT"''
+        terraform -chdir=./ci/deploy/staging apply --auto-approve -var 'project='"${{ env.PROJECT_NAME }}"'' -var 'postgres_password='"${{ secrets.POSTGRES_PASSWORD }}"'' -var 'beanstalk_environment='"${{ env.BEANSTALK_ENVIRONMENT }}"''
     
     - name: Generate deployment package
-      env:
-        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-        IMAGE_TAG: ${{ github.sha }}
-        AWS_REGION: ${{ env.AWS_REGION }}
-        PROJECT_NAME: ${{ env.PROJECT_NAME }}
       run: |
         cp docker-compose-prod.yml docker-compose-prod.editing.yml
-        sed -i 's/AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' docker-compose-prod.editing.yml
-        sed -i 's/IMAGE_TAG/'"$IMAGE_TAG"'/g' docker-compose-prod.editing.yml
-        sed -i 's/AWS_REGION/'"$AWS_REGION"'/g' docker-compose-prod.editing.yml
-        sed -i 's/PROJECT_NAME/'"$PROJECT_NAME"'/g' docker-compose-prod.editing.yml
+        sed -i 's/AWS_ACCOUNT_ID/'"${{ secrets.AWS_ACCOUNT_ID }}"'/g' docker-compose-prod.editing.yml
+        sed -i 's/IMAGE_TAG/'"$GITHUB_SHA"'/g' docker-compose-prod.editing.yml
+        sed -i 's/AWS_REGION/'"${{ env.AWS_REGION }}"'/g' docker-compose-prod.editing.yml
+        sed -i 's/PROJECT_NAME/'"${{ env.PROJECT_NAME }}"'/g' docker-compose-prod.editing.yml
         mv docker-compose-prod.editing.yml docker-compose.yml
         zip -r deploy.zip ./docker-compose.yml
 
