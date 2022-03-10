@@ -12,17 +12,10 @@ env:
   AWS_REGION: ca-central-1
 
 jobs:
-  build:
-    name: Build project module
+  prebuild:
+    name: Prebuild
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        module:
-          - client
-          - nginx
-          - server
-          - worker
-
+  
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -37,6 +30,28 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
+    - name: Create AWS ECR repos
+      run: |
+        terraform -chdir=./ci/prebuild init
+        terraform -chdir=./ci/prebuild apply --auto-approve -var 'project_modules=["client", "nginx", "server", "worker"]'
+      # To be improved: only one source of truth for project modules
+
+  build:
+    name: Build project module
+    runs-on: ubuntu-latest
+    needs: [prebuild]
+    strategy:
+      matrix:
+        module:
+          - client
+          - nginx
+          - server
+          - worker
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Run tests
       if: ${{ matrix.module == 'client' }}
       run: |
@@ -44,6 +59,28 @@ jobs:
         docker build -t client-test -f ./client/Dockerfile.dev ./client
         echo "Run tests against that image"
         docker run -e CI=true client-test npm test
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build and push the image for the module to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: docker_multi_container_deployment_${{ matrix.module }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        echo "Build the module production docker image"
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./${{ matrix.module }}
+        echo "Pushing the image to ECR..."
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   # test:
   #   name: Tests

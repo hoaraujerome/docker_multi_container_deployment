@@ -13,6 +13,6 @@ if [ $# -gt 0 ]; then
       terraform validate
       terraform apply -var 'project_modules=["client", "nginx", "worker", "server"]'
     else
-      terraform $1
+      terraform $1 -var 'project_modules=["client", "nginx", "worker", "server"]'
     fi
 fi
