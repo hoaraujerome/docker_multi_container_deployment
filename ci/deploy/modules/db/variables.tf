@@ -18,6 +18,11 @@ variable "vpc_private_subnet_ids" {
   description = "Private Subnet IDs"
 }
 
+variable "postgres_password" {
+  type        = string
+  description = "Postgres password"
+}
+
 variable "postgres_port" {
   type        = number
   description = "Postgres port"

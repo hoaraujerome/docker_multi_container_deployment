@@ -54,3 +54,9 @@ variable "postgres_database" {
   description = "Postgres database"
   default     = "fibvalues"
 }
+
+variable "postgres_password" {
+  type        = string
+  description = "Postgres password"
+  sensitive   = true
+}

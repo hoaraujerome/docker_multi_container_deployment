@@ -13,9 +13,9 @@ if [ $# -gt 0 ]; then
     elif [ "$2" == "deploy" ]; then
       terraform fmt --recursive
       terraform -chdir=./$TF_ENV validate
-      terraform -chdir=./$TF_ENV apply
+      terraform -chdir=./$TF_ENV apply -var 'project=docker_multi_container_deployment'
     else
-      terraform -chdir=./$TF_ENV $2
+      terraform -chdir=./$TF_ENV $2 -var 'project=docker_multi_container_deployment'
     fi
 fi
  

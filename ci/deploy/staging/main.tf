@@ -32,6 +32,7 @@ module "db" {
   vpc_private_subnet_ids = module.vpc.vpc_private_subnet_ids
   postgres_port          = var.postgres_port
   app_security_group_id  = module.vpc.app_security_group_id
+  postgres_password      = var.postgres_password
 }
 
 module "cache" {
@@ -61,5 +62,5 @@ module "compute" {
   postgres_port          = module.db.postgres_port
   postgres_database      = module.db.postgres_database
   postgres_username      = module.db.postgres_username
-  postgres_password      = module.db.postgres_password
+  postgres_password      = var.postgres_password
 }

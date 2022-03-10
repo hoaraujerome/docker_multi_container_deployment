@@ -66,5 +66,4 @@ variable "postgres_username" {
 variable "postgres_password" {
   type        = string
   description = "Postgres password"
-  sensitive   = true
 }

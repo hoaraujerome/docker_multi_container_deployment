@@ -16,7 +16,7 @@ resource "aws_db_instance" "postgres" {
   # Can't use var.project because only lowercase alphanumeric characters and hyphens allowed
   identifier             = "docker-multi-container-deployment-${var.environment}-postgres"
   username               = "postgres"
-  password               = "postgres_password"
+  password               = var.postgres_password
   port                   = var.postgres_port
   name                   = var.postgres_database
   db_subnet_group_name   = aws_db_subnet_group.postgres.name

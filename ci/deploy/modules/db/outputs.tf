@@ -13,7 +13,3 @@ output "postgres_database" {
 output "postgres_username" {
   value = aws_db_instance.postgres.username
 }
-
-output "postgres_password" {
-  value = aws_db_instance.postgres.password
-}
