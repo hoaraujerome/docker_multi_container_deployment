@@ -37,7 +37,7 @@ jobs:
         PROJECT_NAME: ${{ env.PROJECT_NAME }}
       run: |
         terraform -chdir=./ci/prebuild init
-        terraform -chdir=./ci/prebuild apply --auto-approve -var 'project='"$PROJECT_NAME"'' -var 'project_modules=["client", "nginx", "server", "worker"]'
+        terraform -chdir=./ci/prebuild apply --auto-approve -var 'project='"${{ env.PROJECT_NAME }}"'' -var 'project_modules=["client", "nginx", "server", "worker"]'
       # To be improved: only one source of truth for project modules
 
   build:
