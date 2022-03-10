@@ -29,8 +29,10 @@ jobs:
 
     - name: Destroy Staging Environment
       run: |
+        terraform -chdir=./ci/deploy/staging init -backend-config=../backend-staging.tf
         terraform -chdir=./ci/deploy/staging destroy --auto-approve -var 'project='"${{ env.PROJECT_NAME }}"'' -var 'postgres_password='"${{ secrets.POSTGRES_PASSWORD }}"'' -var 'beanstalk_environment='"${{ env.BEANSTALK_ENVIRONMENT }}"''
 
     - name: Destroy Common Resources
       run: |
+        terraform -chdir=./ci/prebuild init
         terraform -chdir=./ci/prebuild destroy --auto-approve -var 'project='"${{ env.PROJECT_NAME }}"'' -var 'project_modules=["client", "nginx", "server", "worker"]'
