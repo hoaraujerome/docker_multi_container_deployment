@@ -10,6 +10,10 @@ on:
 
 env:
   AWS_REGION: ca-central-1
+  PROJECT_MODULE_CLIENT: client
+  PROJECT_MODULE_NGINX: nginx
+  PROJECT_MODULE_WORKER: worker
+  PROJECT_MODULE_SERVER: server
 
 jobs:
   test:
@@ -46,91 +50,96 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Create AWS ECR repos
+      with:
+        module-client: ${{ env.PROJECT_MODULE_CLIENT }}
+        module-nginx: ${{ env.PROJECT_MODULE_NGINX }}
+        module-worker: ${{ env.PROJECT_MODULE_WORKER }}
+        module-server: ${{ env.PROJECT_MODULE_SERVER }}
       run: |
         terraform -chdir=./ci/prebuild init
-        terraform -chdir=./ci/prebuild apply --auto-approve
+        terraform -chdir=./ci/prebuild apply --auto-approve -var 'project_modules=["$module-client", "$module-nginx", "$module-worker", "$module-server"]'
 
-  build:
-    name: Build Artifact
-    runs-on: ubuntu-latest
-    needs: [prebuild, test]
-    strategy:
-      matrix:
-        module:
-          - client
-          - nginx
-          - server
-          - worker
+  # build:
+  #   name: Build Artifact
+  #   runs-on: ubuntu-latest
+  #   needs: [prebuild, test]
+  #   strategy:
+  #     matrix:
+  #       module:
+  #         - client
+  #         - nginx
+  #         - server
+  #         - worker
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+  #   - name: Configure AWS credentials
+  #     uses: aws-actions/configure-aws-credentials@v1
+  #     with:
+  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+  #       aws-region: ${{ env.AWS_REGION }}
         
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+  #   - name: Login to Amazon ECR
+  #     id: login-ecr
+  #     uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build the module and push its image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: docker_multi_container_deployment_${{ matrix.module }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        echo "Build the module production docker image"
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./${{ matrix.module }}
-        echo "Pushing the image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+  #   - name: Build the module and push its image to Amazon ECR
+  #     env:
+  #       ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #       ECR_REPOSITORY: docker_multi_container_deployment_${{ matrix.module }}
+  #       IMAGE_TAG: ${{ github.sha }}
+  #     run: |
+  #       echo "Build the module production docker image"
+  #       docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./${{ matrix.module }}
+  #       echo "Pushing the image to ECR..."
+  #       docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  #       echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-  deployStaging:
-    name: Deploy to Staging ENV
-    runs-on: ubuntu-latest
-    needs: [build]
+  # deployStaging:
+  #   name: Deploy to Staging
+  #   runs-on: ubuntu-latest
+  #   needs: [build]
   
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+  #   - name: Setup Terraform
+  #     uses: hashicorp/setup-terraform@v1
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+  #   - name: Configure AWS credentials
+  #     uses: aws-actions/configure-aws-credentials@v1
+  #     with:
+  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+  #       aws-region: ${{ env.AWS_REGION }}
 
-    - name: Build AWS resources for staging
-      run: |
-        terraform -chdir=./ci/deploy/staging init -backend-config=../backend-staging.tf
-        terraform -chdir=./ci/deploy/staging apply --auto-approve
+  #   - name: Build AWS resources for staging
+  #     run: |
+  #       terraform -chdir=./ci/deploy/staging init -backend-config=../backend-staging.tf
+  #       terraform -chdir=./ci/deploy/staging apply --auto-approve
     
-    - name: Generate deployment package
-      env:
-        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        cp docker-compose-prod.yml docker-compose-prod.editing.yml
-        sed -i 's/AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' docker-compose-prod.editing.yml
-        sed -i 's/IMAGE_TAG/'"$IMAGE_TAG"'/g' docker-compose-prod.editing.yml
-        mv docker-compose-prod.editing.yml docker-compose.yml
-        zip -r deploy.zip ./docker-compose.yml
+  #   - name: Generate deployment package
+  #     env:
+  #       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  #       IMAGE_TAG: ${{ github.sha }}
+  #     run: |
+  #       cp docker-compose-prod.yml docker-compose-prod.editing.yml
+  #       sed -i 's/AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' docker-compose-prod.editing.yml
+  #       sed -i 's/IMAGE_TAG/'"$IMAGE_TAG"'/g' docker-compose-prod.editing.yml
+  #       mv docker-compose-prod.editing.yml docker-compose.yml
+  #       zip -r deploy.zip ./docker-compose.yml
 
-    - name: Deploy latest Docker images to EB
-      uses: einaregilsson/beanstalk-deploy@v20
-      with:
-        aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
-        aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-        application_name: docker_multi_container_deployment
-        environment_name: Dockermulticontainerdeployment-staging
-        region: ${{ env.AWS_REGION }}
-        version_label: ${{ github.sha }}
-        deployment_package: deploy.zip
+  #   - name: Deploy latest Docker images to EB
+  #     uses: einaregilsson/beanstalk-deploy@v20
+  #     with:
+  #       aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+  #       aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+  #       application_name: docker_multi_container_deployment
+  #       environment_name: Dockermulticontainerdeployment-staging
+  #       region: ${{ env.AWS_REGION }}
+  #       version_label: ${{ github.sha }}
+  #       deployment_package: deploy.zip

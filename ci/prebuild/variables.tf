@@ -11,6 +11,6 @@ variable "project" {
 }
 
 variable "project_modules" {
-  type    = set(string)
-  default = ["client", "nginx", "worker", "server"]
+  type        = set(string)
+  description = "Project's modules"
 }
