@@ -24,12 +24,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Run front-end tests
-      run: |
-        echo "Build a docker image for tests"
-        docker build -t frontend-test -f ./client/Dockerfile.dev ./client
-        echo "Run tests against that image"
-        docker run -e CI=true frontend-test npm test
+    # - name: Run front-end tests
+    #   run: |
+    #     echo "Build a docker image for tests"
+    #     docker build -t frontend-test -f ./client/Dockerfile.dev ./client
+    #     echo "Run tests against that image"
+    #     docker run -e CI=true frontend-test npm test
 
   prebuild:
     name: Prebuild
@@ -57,7 +57,7 @@ jobs:
         module-server: ${{ env.PROJECT_MODULE_SERVER }}
       run: |
         terraform -chdir=./ci/prebuild init
-        terraform -chdir=./ci/prebuild apply --auto-approve -var 'project_modules=["$module-client", "$module-nginx", "$module-worker", "$module-server"]'
+        terraform -chdir=./ci/prebuild apply --auto-approve -var 'project_modules=["'"$module-client"'"]'
 
   # build:
   #   name: Build Artifact
